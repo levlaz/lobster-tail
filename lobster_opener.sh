@@ -8,9 +8,18 @@ set -e
 echo "🦞 Lobste.rs Story Opener (Bash Version)"
 echo "========================================"
 
-# Check if we're on macOS
-if [[ "$OSTYPE" != "darwin"* ]]; then
-    echo "Warning: This script is designed for macOS. The 'open' command may not work on other systems."
+# Check if we're on macOS and if open command is available
+OPEN_CMD=""
+if [[ "$OSTYPE" == "darwin"* ]] && command -v open &> /dev/null; then
+    OPEN_CMD="open"
+elif command -v xdg-open &> /dev/null; then
+    OPEN_CMD="xdg-open"
+    echo "Using xdg-open for Linux/Unix systems."
+elif command -v start &> /dev/null; then
+    OPEN_CMD="start"
+    echo "Using start for Windows systems."
+else
+    echo "Warning: No suitable command found to open URLs. URLs will be displayed only."
 fi
 
 # Check if required tools are available
@@ -62,11 +71,6 @@ story_count=$(echo "$story_count" | tr -d '\n\r ')
 
 if [[ "$story_count" -eq 0 ]]; then
     echo "No stories found. The website structure might have changed."
-    echo "Debug: Let's see what we found..."
-    echo "Raw story URLs:"
-    echo "$story_urls"
-    echo "Absolute URLs:"
-    echo "$absolute_urls"
     exit 1
 fi
 
@@ -84,6 +88,13 @@ while IFS= read -r url; do
 done <<< "$absolute_urls"
 
 echo
+
+# If no open command is available, just display the URLs
+if [[ -z "$OPEN_CMD" ]]; then
+    echo "✅ Found $story_count stories! Copy and paste the URLs above to open them in your browser."
+    exit 0
+fi
+
 read -p "Open all $story_count stories in your browser? (y/N): " -n 1 -r
 echo
 
@@ -101,7 +112,7 @@ successful=0
 while IFS= read -r url; do
     if [[ -n "$url" ]]; then
         echo "Opening $counter/$story_count: $url"
-        if open "$url" 2>/dev/null; then
+        if $OPEN_CMD "$url" 2>/dev/null; then
             ((successful++))
         else
             echo "Failed to open: $url"
