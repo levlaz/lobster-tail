@@ -37,29 +37,36 @@ if ! curl -s -L "https://lobste.rs" > "$temp_file"; then
 fi
 
 # Extract story URLs using grep and sed
-# Look for links with class="u-url" which are the story titles
-story_urls=$(grep -o 'href="[^"]*"[^>]*class="u-url"' "$temp_file" | \
-             sed 's/href="//g' | \
+# Look for <a class="u-url" href="..."> pattern
+story_urls=$(grep -o '<a class="u-url" href="[^"]*"' "$temp_file" | \
+             sed 's/<a class="u-url" href="//g' | \
              sed 's/".*//g' | \
              sort -u)
 
 # Convert relative URLs to absolute URLs
 absolute_urls=""
 while IFS= read -r url; do
-    if [[ $url == http* ]]; then
-        absolute_urls="$absolute_urls$url"$'\n'
-    elif [[ $url == /* ]]; then
-        absolute_urls="${absolute_urls}https://lobste.rs$url"$'\n'
+    if [[ -n "$url" ]]; then
+        if [[ $url == http* ]]; then
+            absolute_urls="$absolute_urls$url"$'\n'
+        elif [[ $url == /* ]]; then
+            absolute_urls="${absolute_urls}https://lobste.rs$url"$'\n'
+        fi
     fi
 done <<< "$story_urls"
 
-# Remove empty lines and count stories - fix the syntax error here
+# Remove empty lines and count stories
 story_count=$(echo "$absolute_urls" | grep -c "^http" 2>/dev/null || echo "0")
 # Clean up any whitespace/newlines from the count
 story_count=$(echo "$story_count" | tr -d '\n\r ')
 
 if [[ "$story_count" -eq 0 ]]; then
     echo "No stories found. The website structure might have changed."
+    echo "Debug: Let's see what we found..."
+    echo "Raw story URLs:"
+    echo "$story_urls"
+    echo "Absolute URLs:"
+    echo "$absolute_urls"
     exit 1
 fi
 
