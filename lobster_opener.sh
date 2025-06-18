@@ -53,10 +53,12 @@ while IFS= read -r url; do
     fi
 done <<< "$story_urls"
 
-# Remove empty lines and count stories
-story_count=$(echo "$absolute_urls" | grep -c "^http" || echo "0")
+# Remove empty lines and count stories - fix the syntax error here
+story_count=$(echo "$absolute_urls" | grep -c "^http" 2>/dev/null || echo "0")
+# Clean up any whitespace/newlines from the count
+story_count=$(echo "$story_count" | tr -d '\n\r ')
 
-if [[ $story_count -eq 0 ]]; then
+if [[ "$story_count" -eq 0 ]]; then
     echo "No stories found. The website structure might have changed."
     exit 1
 fi
