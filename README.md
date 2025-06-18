@@ -83,15 +83,6 @@ This project was built using:
 - **[Claude](https://claude.ai)** - AI assistant for code generation and debugging
 - **[Container Use by Dagger](https://github.com/dagger/container-use)** - Development environment management
 
-## Contributing
-
-Feel free to submit issues and pull requests! Some ideas for improvements:
-
-- Add support for filtering stories by tags
-- Add option to save stories to a file instead of opening
-- Add support for other Lobsters-like sites
-- Add configuration file support
-
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
