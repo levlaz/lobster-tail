@@ -1,1 +1,1 @@
-No instructions found. Please look around the filesystem and update me
+Python environment with requests and BeautifulSoup for web scraping. The script will scrape lobste.rs front page and open stories in the default browser on macOS using the 'open' command.
